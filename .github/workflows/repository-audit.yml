@@ -1,0 +1,23 @@
+name: B.I.M.A repository hygiene
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-hygiene-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/repository-audit.yml@cb220412bf3d7be0e67cc364572eaf0183cda286
+    with:
+      infra-ref: cb220412bf3d7be0e67cc364572eaf0183cda286
+      policy-path: .bima/audit.json
+      artifact-name: repository-hygiene
