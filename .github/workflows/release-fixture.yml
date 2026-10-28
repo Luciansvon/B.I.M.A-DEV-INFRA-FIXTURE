@@ -1,0 +1,42 @@
+name: Release publication fixture proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: New fixture release tag
+        required: true
+        default: v0.0.1-fixture
+
+permissions:
+  contents: read
+
+jobs:
+  asset:
+    name: Build fixture asset
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Create fixture asset
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/asset"
+          printf 'release publication fixture proof\n' > "$RUNNER_TEMP/asset/fixture-asset.txt"
+      - name: Upload fixture asset
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fixture-release-asset
+          path: ${{ runner.temp }}/asset/fixture-asset.txt
+
+  publish:
+    name: Publish fixture release
+    needs: asset
+    permissions:
+      contents: write
+    uses: Luciansvon/B.I.M.A-DEV-INFRA/.github/workflows/release.yml@587017f8723814e91f2937f16553bacc0974ae21
+    with:
+      tag: ${{ inputs.tag }}
+      title: Fixture release ${{ inputs.tag }}
+      notes-file: RELEASE-NOTES.md
+      target-sha: ${{ github.sha }}
+      artifact-pattern: fixture-release-asset
